@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./style.css">
+    <title>HomeBrowser</title>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="https://www.google.com" target="_blank" title="Google">
+            <img src="https://img.icons8.com/color/48/000000/google-logo.png" alt="Google">
+        </a>
+        <a href="https://search.brave.com" target="_blank" title="Brave">
+            <img src="https://img.icons8.com/color/48/000000/brave-web-browser.png" alt="Brave">
+        </a>
+        <a href="https://www.bing.com" target="_blank" title="Bing">
+            <img src="https://img.icons8.com/color/48/000000/bing.png" alt="Bing">
+        </a>
+        <a href="https://chatgpt.com" target="_blank" title="ChatGPT">
+            <img src="https://img.icons8.com/color/48/000000/chatgpt.png" alt="chatgpt">
+        </a>
+    </div>
+    <div class="clock-container">
+        <center>
+            <p id="clock"></p>
+        </center>
+    </div>
+    <div class="container">
+        <div class="discord" align="center">
+            <a href="https://discord.com/users/1006197798577909880">
+                <img src="https://lanyard.cnrad.dev/api/1006197798577909880" alt="Discord Presence">
+            </a>
+        </div>
+        <p></p>
+        <div class="recherche">
+            <form class="search google" action="https://www.google.com/search" autocomplete="off" method="get">
+                <input type="text" name="q" placeholder="Rechercher sur Google..." />
+            </form>
+            <form class="search brave" action="https://search.brave.com/search" autocomplete="off" method="get">
+                <input type="text" name="q" placeholder="Rechercher sur Brave..." />
+            </form>
+            <form class="search bing" action="https://www.bing.com/search" autocomplete="off" method="get">
+                <input type="text" name="q" placeholder="Rechercher sur Bing..." />
+            </form>
+        </div>
+    </div>
+    
+    <div class="recent-sites-container collapsed"> <!-- Ajout de la classe "collapsed" pour masquer par défaut -->
+        <button class="toggle-button" id="toggleButton">⮜</button>
+        <h2>Sites récemment visités</h2>
+        <ul id="recent-sites"></ul>
+    </div>
+    <script src="./script.js"></script>
+</body>
+</html>

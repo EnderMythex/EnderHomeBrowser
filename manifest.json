@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "EnderHomeBrowser",
+  "version": "1.0",
+  "description": "EnderHomeBrowser made by EnderMythex",
+  "chrome_url_overrides": {
+    "newtab": "home.html"
+  },
+  "permissions": [
+    "storage",
+    "history"
+  ]
+}
