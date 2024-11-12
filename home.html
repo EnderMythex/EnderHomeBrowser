@@ -28,12 +28,10 @@
         </center>
     </div>
     <div class="container">
-        <div class="discord" align="center">
-            <a href="https://discord.com/users/1006197798577909880">
-                <img src="https://lanyard.cnrad.dev/api/1006197798577909880" alt="Discord Presence">
-            </a>
+        <div class="storage-container">
+            <h3>Stockage</h3>
+            <div id="storage-info" class="storage-stat"></div>
         </div>
-        <p></p>
         <div class="recherche">
             <form class="search google" action="https://www.google.com/search" autocomplete="off" method="get">
                 <input type="text" name="q" placeholder="Rechercher sur Google..." />
@@ -44,10 +42,21 @@
             <form class="search bing" action="https://www.bing.com/search" autocomplete="off" method="get">
                 <input type="text" name="q" placeholder="Rechercher sur Bing..." />
             </form>
+            <div class="discord" align="center">
+                <a href="https://discord.com/users/1006197798577909880">
+                    <img src="https://lanyard.cnrad.dev/api/1006197798577909880" alt="Discord Presence">
+                </a>
+            </div>
+        </div>
+        <div class="performance-container">
+            <h3>Performance CPU</h3>
+            <div id="cpu-info"></div>
+            <h3>Mémoire Système</h3>
+            <div id="memory-info" class="memory-stat"></div>
         </div>
     </div>
     
-    <div class="recent-sites-container collapsed"> <!-- Ajout de la classe "collapsed" pour masquer par défaut -->
+    <div class="recent-sites-container collapsed">
         <button class="toggle-button" id="toggleButton">⮜</button>
         <h2>Sites récemment visités</h2>
         <ul id="recent-sites"></ul>

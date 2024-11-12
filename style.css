@@ -11,10 +11,15 @@ body {
 
 .container {
     text-align: center;
-    padding: 20px;
-    background-color: #2a2d31;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+    padding: 30px;
+    background-color: rgba(42, 45, 49, 0.95);
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    display: flex;
+    gap: 30px;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-direction: row;
 }
 
 .profile {
@@ -27,48 +32,55 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    flex: 1;
 }
 .search input[type="text"] {
     font-family: "clockDigital";
     width: 400px;
-    padding: 10px;
+    padding: 15px;
     border: none;
-    border-radius: 5px;
-    margin-bottom: 10px;
+    border-radius: 10px;
+    margin-bottom: 15px;
     font-size: 16px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
 }
 .search input[type="text"]::placeholder {
     color: #000000;
 }
 .search input[type="text"]:focus {
     outline: none;
-    box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
 }
 .search.google input[type="text"] {
-    background-color: #4285F4;
+    background: linear-gradient(145deg, #4285F4, #3b77db);
     color: #fff;
 }
 .search.brave input[type="text"] {
-    background-color: #FF6600;
+    background: linear-gradient(145deg, #FF6600, #e65c00);
     color: #fff;
 }
 .search.bing input[type="text"] {
-    background-color: #008373;
+    background: linear-gradient(145deg, #008373, #007266);
     color: #fff;
 }
 
 .clock-container {
     width: 400px;
     position: absolute;
-    top: 10px;
-    font-size: 18px;
+    top: 20px;
+    font-size: 20px;
     color: #fff;
-    background-color: #2a2d31;
-    padding: 10px;
-    border-radius: 5px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-    font-family: Arial, sans-serif;
+    background: rgba(42, 45, 49, 0.95);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    font-family: "clockDigital", Arial, sans-serif;
     z-index: 1000;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    letter-spacing: 2px;
 }
 
 @font-face {
@@ -82,26 +94,36 @@ body {
     top: 0;
     left: 0;
     height: 100%;
-    width: 60px;
-    background-color: #2a2d31;
+    width: 65px;
+    background: rgba(42, 45, 49, 0.95);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
-    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.5);
+    padding-top: 25px;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .sidebar a {
-    margin: 10px 0;
+    margin: 12px 0;
+    padding: 8px;
     color: #fff;
     text-decoration: none;
     font-size: 24px;
-    transition: color 0.3s;
+    transition: all 0.3s ease;
+    border-radius: 10px;
 }
 
 .sidebar a:hover {
-    color: #4285F4; /* Change color on hover */
-    transform: scale(1.05);
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.sidebar img {
+    width: 32px;
+    height: 32px;
+    transition: all 0.3s ease;
 }
 
 .recent-sites-container {
@@ -161,4 +183,84 @@ body {
 
 .recent-sites-container.collapsed .toggle-button {
     left: 10px;
+}
+
+.performance-container {
+    width: 300px;
+    padding: 20px;
+    background: rgba(58, 61, 66, 0.95);
+    border-radius: 12px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.performance-container h3 {
+    margin: 0 0 15px 0;
+    text-align: center;
+    font-size: 18px;
+    color: #fff;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+}
+
+.cpu-stat, .memory-stat {
+    margin: 8px 0;
+    padding: 10px;
+    background-color: rgba(42, 45, 49, 0.8);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.cpu-stat:hover, .memory-stat:hover {
+    background-color: rgba(42, 45, 49, 0.9);
+    transform: translateX(5px);
+}
+
+.usage-bar, .memory-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin-top: 5px;
+    transition: width 0.3s ease;
+}
+
+.usage-bar {
+    background: linear-gradient(90deg, #4285F4, #34a853);
+}
+
+.memory-bar {
+    background: linear-gradient(90deg, #FF6600, #ff8533);
+}
+
+.storage-stat {
+    margin: 8px 0;
+    padding: 10px;
+    background-color: rgba(42, 45, 49, 0.8);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.storage-stat:hover {
+    background-color: rgba(42, 45, 49, 0.9);
+    transform: translateX(5px);
+}
+
+.storage-bar {
+    height: 6px;
+    border-radius: 3px;
+    margin-top: 5px;
+    transition: width 0.3s ease;
+    background: linear-gradient(90deg, #FF6600, #ff8533);
+}
+
+.storage-container {
+    width: 300px;
+    padding: 20px;
+    background: rgba(58, 61, 66, 0.95);
+    border-radius: 12px;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin-right: 30px;
 }

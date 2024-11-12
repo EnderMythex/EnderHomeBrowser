@@ -60,3 +60,73 @@ function toggleRecentSites() {
 }
 
 document.getElementById('toggleButton').addEventListener('click', toggleRecentSites);
+
+function updateCPUInfo() {
+    chrome.system.cpu.getInfo(function(cpuInfo) {
+        const cpuInfoDiv = document.getElementById('cpu-info');
+        cpuInfoDiv.innerHTML = '';
+
+        cpuInfo.processors.forEach((processor, index) => {
+            const usage = processor.usage;
+            const usagePercentage = Math.round(
+                (usage.kernel + usage.user) / usage.total * 100
+            );
+
+            const processorDiv = document.createElement('div');
+            processorDiv.className = 'cpu-stat';
+            processorDiv.innerHTML = `
+                Processeur ${index + 1}: ${usagePercentage}%
+                <div class="usage-bar" style="width: ${usagePercentage}%"></div>
+            `;
+            cpuInfoDiv.appendChild(processorDiv);
+        });
+    });
+}
+
+// Mettre à jour toutes les 500ms pour plus de fluidité
+setInterval(updateCPUInfo, 500);
+updateCPUInfo(); // Appel initial
+
+function updateMemoryInfo() {
+    chrome.system.memory.getInfo(function(memoryInfo) {
+        const memoryInfoDiv = document.getElementById('memory-info');
+        const totalMemory = memoryInfo.capacity / (1024 * 1024 * 1024); // Conversion en GB
+        const usedMemory = (memoryInfo.capacity - memoryInfo.availableCapacity) / (1024 * 1024 * 1024);
+        const memoryPercentage = Math.round((usedMemory / totalMemory) * 100);
+
+        memoryInfoDiv.innerHTML = `
+            RAM: ${memoryPercentage}% utilisé (${usedMemory.toFixed(1)}GB / ${totalMemory.toFixed(1)}GB)
+            <div class="memory-bar" style="width: ${memoryPercentage}%"></div>
+        `;
+    });
+}
+
+// Mettre à jour les informations mémoire toutes les secondes
+setInterval(updateMemoryInfo, 1000);
+updateMemoryInfo(); // Appel initial
+
+function updateStorageInfo() {
+    chrome.system.storage.getInfo(function(storageUnits) {
+        const storageInfoDiv = document.getElementById('storage-info');
+        storageInfoDiv.innerHTML = '';
+
+        storageUnits.forEach((unit) => {
+            const totalSpace = unit.capacity / (1024 * 1024 * 1024); // Conversion en GB
+            const availableSpace = unit.availableCapacity / (1024 * 1024 * 1024);
+            const usedSpace = totalSpace - availableSpace;
+            const usagePercentage = Math.round((usedSpace / totalSpace) * 100);
+
+            const storageDiv = document.createElement('div');
+            storageDiv.className = 'storage-stat';
+            storageDiv.innerHTML = `
+                ${unit.name}: ${usagePercentage}% utilisé (${usedSpace.toFixed(1)}GB / ${totalSpace.toFixed(1)}GB)
+                <div class="storage-bar" style="width: ${usagePercentage}%"></div>
+            `;
+            storageInfoDiv.appendChild(storageDiv);
+        });
+    });
+}
+
+// Mettre à jour les informations de stockage toutes les 5 secondes
+setInterval(updateStorageInfo, 5000);
+updateStorageInfo(); // Appel initial
