@@ -7,12 +7,14 @@ body {
     align-items: center;
     height: 100vh;
     background: linear-gradient(135deg, #1a1c1f 0%, #3a3d42 100%);
+    background: url('/assets/background.jpg') no-repeat center center fixed;
+    background-size: cover;
 }
 
 .container {
     text-align: center;
     padding: 30px;
-    background-color: rgba(42, 45, 49, 0.95);
+    background-color: rgba(42, 45, 49, 0.85);
     border-radius: 15px;
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     display: flex;
@@ -32,6 +34,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 10px;
+    border-radius: 10px;
     flex: 1;
 }
 .search input[type="text"] {
@@ -72,7 +75,7 @@ body {
     top: 20px;
     font-size: 20px;
     color: #fff;
-    background: rgba(42, 45, 49, 0.95);
+    background: rgba(42, 45, 49, 0.85);
     padding: 15px;
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
@@ -95,7 +98,7 @@ body {
     left: 0;
     height: 100%;
     width: 65px;
-    background: rgba(42, 45, 49, 0.95);
+    background: rgba(42, 45, 49, 0.85);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -132,7 +135,7 @@ body {
     right: 0;
     width: 300px;
     height: 100%;
-    background-color: #2a2d31;
+    background-color: rgba(42, 45, 49, 0.85);
     color: #fff;
     padding: 20px;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
@@ -188,7 +191,7 @@ body {
 .performance-container {
     width: 300px;
     padding: 20px;
-    background: rgba(58, 61, 66, 0.95);
+    background: rgba(58, 61, 66, 0.85);
     border-radius: 12px;
     text-align: left;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
@@ -257,10 +260,14 @@ body {
 .storage-container {
     width: 300px;
     padding: 20px;
-    background: rgba(58, 61, 66, 0.95);
+    background: rgba(58, 61, 66, 0.85);
     border-radius: 12px;
     text-align: left;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.1);
     margin-right: 30px;
+}
+
+.container, .clock-container, .sidebar, .recent-sites-container, .performance-container, .storage-container, .profile, .recherche, .search {
+    background-color: rgba(42, 45, 49, 0.664);
 }

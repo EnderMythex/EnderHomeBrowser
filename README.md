@@ -10,7 +10,7 @@
     "system.memory",
     "system.storage"
 
-## 💠 Setup Discord Embed
+## Setup Discord Embed
 Go to 
 ```
 https://lanyard.cnrad.dev/
