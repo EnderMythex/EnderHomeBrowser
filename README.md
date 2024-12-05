@@ -1,6 +1,8 @@
 # 🌐 EnderHomeBrowser
 
-![image](https://github.com/user-attachments/assets/88349aa6-7261-4ab3-ab76-16f295b044e8)
+![image](https://github.com/user-attachments/assets/7f694c2a-b0bd-4fa8-b5f8-d1f3c4375d3b)
+
+![image](https://github.com/user-attachments/assets/cf6c1329-4330-4f7e-9391-29c20b6958a9) ![image](https://github.com/user-attachments/assets/fe47d155-a3c1-496b-9ddd-cb1eac3bee73)
 
 ## 📛 Permissions
     "notifications",
