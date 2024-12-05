@@ -6,6 +6,7 @@
     <link rel="stylesheet" href="./style.css">
     <link rel="icon" href="/assets/logo.png" />
     <title>HomeBrowser</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
     <div class="sidebar">
@@ -23,9 +24,9 @@
         </a>
     </div>
     <div class="clock-container">
-        <center>
+        <div class="clock-inner">
             <p id="clock"></p>
-        </center>
+        </div>
     </div>
     <div class="container">
         <div class="storage-container">
@@ -53,6 +54,24 @@
             <div id="cpu-info"></div>
             <h3>Mémoire Système</h3>
             <div id="memory-info" class="memory-stat"></div>
+        </div>
+        <div class="widgets-container">
+            <div class="weather-widget">
+                <h3>Météo</h3>
+                <div id="weather-info">
+                    <div class="weather-loading">Chargement...</div>
+                </div>
+            </div>
+            <div class="quick-notes">
+                <h3>Notes Rapides</h3>
+                <div class="notes-container">
+                    <textarea id="notes-area" placeholder="Écrivez vos notes ici..."></textarea>
+                    <div class="notes-controls">
+                        <button id="save-notes">Enregistrer</button>
+                        <span id="save-status"></span>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     
