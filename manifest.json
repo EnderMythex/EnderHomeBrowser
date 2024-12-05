@@ -1,8 +1,15 @@
 {
   "manifest_version": 3,
   "name": "EnderHomeBrowser",
-  "description": "EnderHomeBrowser made by EnderMythex",
+  "description": "A custom extension that transforms your new tab into a modern dashboard with useful widgets, system statistics and shortcuts.",
   "version": "1.0",
+  "author": "EnderMythex",
+  "icons": {
+    "16": "assets/logo.png",
+    "32": "assets/logo.png",
+    "48": "assets/logo.png",
+    "128": "assets/logo.png"
+  },
   "chrome_url_overrides": {
     "newtab": "home.html"
   },
@@ -13,7 +20,9 @@
     "system.cpu",
     "system.memory",
     "system.storage",
-    "geolocation"
+    "geolocation",
+    "clipboardRead",
+    "clipboardWrite"
   ],
   "offline_enabled": true,
   "key": "appakaomldonooobekdadejdhmlbbelm",
@@ -26,5 +35,15 @@
   "homepage_url": "https://github.com/EnderMythex/EnderHomeBrowser",
   "background": {
     "service_worker": "background.js"
+  },
+  "short_name": "EHB",
+  "action": {
+    "default_icon": {
+      "16": "assets/logo.png",
+      "32": "assets/logo.png",
+      "48": "assets/logo.png",
+      "128": "assets/logo.png"
+    },
+    "default_title": "EnderHomeBrowser"
   }
 }

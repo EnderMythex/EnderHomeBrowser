@@ -1,10 +1,10 @@
 chrome.runtime.onInstalled.addListener(() => {
-  const version = chrome.runtime.getManifest().version;  // Récupère la version du manifeste
+  const version = chrome.runtime.getManifest().version;
   chrome.notifications.create({
     type: "basic",
     iconUrl: "/assets/logo.png",
-    title: "Extension Installée",
-    message: `Version ${version}. Créée par EnderMyhtex. Merci d'avoir installé notre extension !`
+    title: "Extension Installed",
+    message: `Version ${version}. Created by EnderMyhtex. Thank you for installing our extension!`
   });
 });
 
@@ -12,7 +12,7 @@ chrome.system.storage.onAttached.addListener((info) => {
   chrome.notifications.create({
     type: "basic",
     iconUrl: "/assets/logo.png",
-    title: "Périphérique Connecté",
-    message: `Un périphérique de stockage a été connecté: ${info.name}`
+    title: "Device Connected",
+    message: `A storage device has been connected: ${info.name}`
   });
 });
