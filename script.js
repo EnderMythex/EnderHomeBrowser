@@ -87,8 +87,11 @@ document.getElementById('toggleButton').addEventListener('click', toggleRecentSi
 function updateCPUInfo() {
     chrome.system.cpu.getInfo(function(cpuInfo) {
         const cpuInfoDiv = document.getElementById('cpu-info');
-        cpuInfoDiv.innerHTML = '';
+        if (!cpuInfoDiv) return;
 
+        // Créer un fragment pour éviter les reflows multiples
+        const fragment = document.createDocumentFragment();
+        
         cpuInfo.processors.forEach((processor, index) => {
             const usage = processor.usage;
             const usagePercentage = Math.round(
@@ -101,8 +104,12 @@ function updateCPUInfo() {
                 Processor ${index + 1}: ${usagePercentage}%
                 <div class="usage-bar" style="width: ${usagePercentage}%"></div>
             `;
-            cpuInfoDiv.appendChild(processorDiv);
+            fragment.appendChild(processorDiv);
         });
+
+        // Une seule modification du DOM
+        cpuInfoDiv.innerHTML = '';
+        cpuInfoDiv.appendChild(fragment);
     });
 }
 
@@ -886,7 +893,7 @@ function initCustomSelects() {
                         language: currentLanguage
                     };
                     chrome.storage.local.set(settings, () => {
-                        console.log('Nouveau thème sauvegardé:', value); // Debug
+                        console.log('Nouveau thème sauvegard:', value); // Debug
                         applySettings(settings);
                     });
                 } else if (select.id === 'languageSelect') {
@@ -947,6 +954,60 @@ function loadDefaultSearchEngine() {
         }
     });
 }
+
+let frameCount = 0;
+let lastTime = performance.now();
+let fps = 0;
+let fpsUpdateTimeout;
+
+function updateFPS() {
+    frameCount++;
+    const currentTime = performance.now();
+    
+    if (currentTime - lastTime >= 1000) {
+        fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+        frameCount = 0;
+        lastTime = currentTime;
+        
+        // Mettre à jour l'affichage seulement si l'élément existe
+        const fpsInfoDiv = document.getElementById('fps-info');
+        if (fpsInfoDiv) {
+            // Limiter les mises à jour du DOM
+            clearTimeout(fpsUpdateTimeout);
+            fpsUpdateTimeout = setTimeout(() => {
+                const fpsQuality = fps >= 50 ? 'Excellent' : fps >= 30 ? 'Good' : 'Poor';
+                const percentage = Math.min(100, Math.round((fps / 60) * 100));
+                
+                fpsInfoDiv.innerHTML = `
+                    ${fps} FPS (${fpsQuality})
+                    <div class="fps-bar" style="width: ${percentage}%"></div>
+                `;
+            }, 100); // Mettre à jour l'affichage au maximum 10 fois par seconde
+        }
+    }
+    
+    requestAnimationFrame(updateFPS);
+}
+
+// Remplacer les intervalles trop fréquents par des intervalles plus raisonnables
+function initPerformanceMonitoring() {
+    // CPU et mémoire toutes les 2 secondes au lieu de 500ms/1000ms
+    setInterval(() => {
+        updateCPUInfo();
+        updateMemoryInfo();
+    }, 2000);
+
+    // Stockage toutes les 10 secondes au lieu de 5
+    setInterval(updateStorageInfo, 10000);
+
+    // Météo toutes les 5 minutes au lieu de 10 secondes
+    setInterval(updateWeather, 300000);
+
+    // Ajouter la mesure du ping toutes les 5 secondes
+    setInterval(measurePing, 5000);
+    measurePing(); // Premier appel immédiat
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     // S'assurer que les traductions sont chargées
     if (typeof translations === 'undefined') {
@@ -967,7 +1028,932 @@ document.addEventListener('DOMContentLoaded', () => {
     initModals();
     
     // Mettre à jour les éléments dynamiques
-    updateWeather();
-    setInterval(updateWeather, 10000);
+    initPerformanceMonitoring();
+    updateWeather(); // Premier appel immédiat
     loadDefaultSearchEngine();
+    requestAnimationFrame(updateFPS);
+
+    // Initialiser avec Bitcoin
+    handleCryptoChange('bitcoin');
+
+    // Ajouter le minuteur
+    initTimer();
 });
+
+document.addEventListener('click', (e) => {
+    // Gestion du menu contextuel
+    if (e.target.closest('.context-menu-item')) {
+        handleContextMenuAction(e);
+    }
+    
+    // Gestion des sélecteurs personnalisés
+    if (e.target.closest('.custom-select-trigger')) {
+        handleCustomSelectTrigger(e);
+    }
+    
+    // Gestion des options de sélection
+    if (e.target.closest('.custom-select-option')) {
+        handleCustomSelectOption(e);
+    }
+});
+
+let bitcoinChart = null;
+
+async function initBitcoinWidget() {
+    try {
+        const ctx = document.getElementById('bitcoinChart');
+        if (!ctx) {
+            console.error('Canvas bitcoinChart non trouvé');
+            return;
+        }
+
+        if (!window.Chart) {
+            console.error('Chart.js non chargé');
+            return;
+        }
+
+        bitcoinChart = new Chart(ctx.getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: `Prix ${currentCrypto.toUpperCase()}`,
+                    data: [],
+                    borderColor: getCryptoColor(currentCrypto),
+                    borderWidth: 2,
+                    fill: true,
+                    backgroundColor: getCryptoBackgroundColor(currentCrypto),
+                    tension: 0.4,
+                    pointRadius: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `$${context.parsed.y.toLocaleString(currentLanguage, { 
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2 
+                                })}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        display: false
+                    },
+                    y: {
+                        display: false
+                    }
+                },
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                }
+            }
+        });
+
+        await updateBitcoinData();
+        setInterval(updateBitcoinData, 300000);
+
+    } catch (error) {
+        console.error('Erreur lors de l\'initialisation du widget crypto:', error);
+        const chartContainer = document.querySelector('.bitcoin-widget');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="error-message">
+                    <p>Erreur lors du chargement du graphique</p>
+                    <p class="error-details">${error.message}</p>
+                    <button onclick="initBitcoinWidget()">Ressayer</button>
+                </div>
+            `;
+        }
+    }
+}
+
+// Ajouter cette nouvelle fonction pour charger Chart.js de manière asynchrone
+function loadChartJs() {
+    return new Promise((resolve, reject) => {
+        if (window.Chart) {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = '/lib/chart.min.js';  // Chemin local vers Chart.js
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+    });
+}
+
+let currentCrypto = 'bitcoin';
+
+// Ajouter cette fonction pour gérer le changement de crypto
+function handleCryptoChange(cryptoId) {
+    currentCrypto = cryptoId;
+    
+    // Détruire le graphique existant
+    if (bitcoinChart) {
+        bitcoinChart.destroy();
+    }
+    
+    // Mettre à jour le titre
+    const cryptoNames = {
+        'bitcoin': 'Bitcoin',
+        'ethereum': 'Ethereum',
+        'solana': 'Solana',
+        'ripple': 'Ripple'
+    };
+    
+    const titleElement = document.querySelector('.crypto-header h3');
+    if (titleElement) {
+        titleElement.textContent = `${cryptoNames[cryptoId] || cryptoId} Price`;
+    }
+    
+    // Mettre à jour l'icône du sélecteur avec la bonne couleur
+    const selectedIcon = document.querySelector('.crypto-select .selected-icon');
+    if (selectedIcon) {
+        selectedIcon.style.color = getCryptoColor(cryptoId);
+    }
+    
+    // Réinitialiser le graphique
+    initBitcoinWidget();
+}
+
+// Modifier la fonction updateBitcoinData pour supporter différentes cryptos
+async function updateBitcoinData() {
+    try {
+        const response = await fetch(`https://api.coingecko.com/api/v3/coins/${currentCrypto}/market_chart?vs_currency=usd&days=1&interval=hourly`, {
+            headers: {
+                'Accept': 'application/json',
+                'User-Agent': 'EnderHomeBrowser Extension'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (!data || !data.prices || !Array.isArray(data.prices) || data.prices.length === 0) {
+            throw new Error('Format de données invalide');
+        }
+
+        // Mettre à jour le graphique avec les nouvelles données
+        const prices = data.prices;
+        const labels = prices.map(price => {
+            const date = new Date(price[0]);
+            return date.toLocaleTimeString(currentLanguage, { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            });
+        });
+
+        if (bitcoinChart) {
+            bitcoinChart.data.labels = labels;
+            bitcoinChart.data.datasets[0].data = prices.map(price => price[1]);
+            bitcoinChart.update('none');
+        }
+
+        // Mettre à jour le prix et la variation
+        const currentPrice = prices[prices.length - 1][1];
+        const previousPrice = prices[0][1];
+        const change = ((currentPrice - previousPrice) / previousPrice) * 100;
+
+        const priceElement = document.getElementById('bitcoinPrice');
+        const changeElement = document.getElementById('bitcoinChange');
+
+        if (priceElement) {
+            priceElement.textContent = `$${currentPrice.toLocaleString(currentLanguage, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            })}`;
+        }
+
+        if (changeElement) {
+            changeElement.textContent = `${change >= 0 ? '+' : ''}${change.toFixed(2)}%`;
+            changeElement.className = change >= 0 ? 'positive' : 'negative';
+        }
+
+    } catch (error) {
+        console.error('Erreur lors de la mise à jour des données crypto:', error);
+        const chartContainer = document.querySelector('.bitcoin-widget');
+        if (chartContainer) {
+            chartContainer.innerHTML = `
+                <div class="error-message">
+                    <p>Impossible de charger les données de ${currentCrypto}</p>
+                    <p class="error-details">${error.message}</p>
+                    <button onclick="updateBitcoinData()">Réessayer</button>
+                </div>
+            `;
+        }
+    }
+}
+
+// Ajouter l'écouteur d'événements pour le sélecteur de crypto
+document.addEventListener('DOMContentLoaded', () => {
+    const cryptoSelect = document.querySelector('.crypto-select');
+    if (cryptoSelect) {
+        cryptoSelect.querySelectorAll('.custom-select-option').forEach(option => {
+            option.addEventListener('click', () => {
+                const cryptoId = option.getAttribute('data-value');
+                handleCryptoChange(cryptoId);
+                
+                // Mettre à jour l'affichage du sélecteur
+                const trigger = cryptoSelect.querySelector('.custom-select-trigger');
+                const selectedIcon = option.querySelector('.custom-select-icon').innerHTML;
+                const selectedText = option.querySelector('span').textContent;
+                
+                trigger.querySelector('.selected-icon').innerHTML = selectedIcon;
+                trigger.querySelector('.selected-text').textContent = selectedText;
+                
+                // Mettre à jour la sélection
+                cryptoSelect.querySelectorAll('.custom-select-option').forEach(opt => {
+                    opt.classList.remove('selected');
+                });
+                option.classList.add('selected');
+                
+                // Fermer le menu
+                cryptoSelect.classList.remove('open');
+            });
+        });
+    }
+});
+
+// Ajouter ces fonctions utilitaires pour les couleurs
+function getCryptoColor(crypto) {
+    const colors = {
+        'bitcoin': '#F7931A',
+        'ethereum': '#627EEA',
+        'solana': '#00FFA3',
+        'ripple': '#23292F'
+    };
+    return colors[crypto] || '#4285F4';
+}
+
+function getCryptoBackgroundColor(crypto) {
+    const colors = {
+        'bitcoin': 'rgba(247, 147, 26, 0.1)',
+        'ethereum': 'rgba(98, 126, 234, 0.1)',
+        'solana': 'rgba(0, 255, 163, 0.1)',
+        'ripple': 'rgba(35, 41, 47, 0.1)'
+    };
+    return colors[crypto] || 'rgba(66, 133, 244, 0.1)';
+}
+
+// Ajouter cette fonction pour mesurer le ping
+async function measurePing() {
+    try {
+        const startTime = performance.now();
+        const response = await fetch('https://www.google.com/favicon.ico', {
+            mode: 'no-cors',
+            cache: 'no-cache'
+        });
+        const endTime = performance.now();
+        const pingTime = Math.round(endTime - startTime);
+        
+        const pingInfoDiv = document.getElementById('ping-info');
+        if (pingInfoDiv) {
+            let quality;
+            let color;
+            
+            if (pingTime < 100) {
+                quality = 'Excellent';
+                color = '#4CAF50';
+            } else if (pingTime < 200) {
+                quality = 'Good';
+                color = '#FFC107';
+            } else {
+                quality = 'Poor';
+                color = '#F44336';
+            }
+
+            const percentage = Math.max(0, Math.min(100, 100 - (pingTime / 3)));
+            
+            pingInfoDiv.innerHTML = `
+                ${pingTime}ms (${quality})
+                <div class="ping-bar" style="width: ${percentage}%; background: linear-gradient(90deg, ${color}, ${color}88)"></div>
+            `;
+        }
+    } catch (error) {
+        console.error('Erreur de mesure du ping:', error);
+        const pingInfoDiv = document.getElementById('ping-info');
+        if (pingInfoDiv) {
+            pingInfoDiv.innerHTML = 'Connection error';
+        }
+    }
+}
+
+// Ajouter cette fonction pour le minuteur
+function initTimer() {
+    const timerContainer = document.createElement('div');
+    timerContainer.className = 'timer-container';
+    timerContainer.innerHTML = `
+        <div class="timer-header">
+            <h3 data-i18n="storage.timer">TIMER</h3>
+            <div class="timer-display">
+                <span id="timerDisplay">25:00</span>
+            </div>
+        </div>
+        <div class="timer-progress">
+            <div class="progress-bar" id="timerProgressBar"></div>
+        </div>
+        <div class="timer-controls">
+            <div class="time-input">
+                <input type="number" id="timerMinutes" min="1" max="999" value="25" />
+                <span class="time-label">min</span>
+            </div>
+            <div class="timer-buttons">
+                <button id="startTimer" class="timer-btn">Start</button>
+                <button id="resetTimer" class="timer-btn secondary">Reset</button>
+            </div>
+        </div>
+    `;
+
+    // Insérer le minuteur au début du conteneur de stockage
+    const storageContainer = document.querySelector('.storage-container');
+    storageContainer.insertBefore(timerContainer, storageContainer.firstChild);
+
+    let timerInterval;
+    let timeLeft = 25 * 60;
+    let totalTime = timeLeft;
+    let isRunning = false;
+
+    function updateDisplay() {
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        document.getElementById('timerDisplay').textContent = 
+            `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        
+        // Mettre à jour la barre de progression
+        const progressBar = document.getElementById('timerProgressBar');
+        const progress = (timeLeft / totalTime) * 100;
+        progressBar.style.width = `${progress}%`;
+        
+        // Changer la couleur en fonction du temps restant
+        if (progress <= 25) {
+            progressBar.style.background = '#ff4444';
+        } else if (progress <= 50) {
+            progressBar.style.background = '#ffa726';
+        } else {
+            progressBar.style.background = '#4CAF50';
+        }
+    }
+
+    document.getElementById('startTimer').addEventListener('click', () => {
+        const startButton = document.getElementById('startTimer');
+        if (isRunning) {
+            // Pause
+            clearInterval(timerInterval);
+            startButton.textContent = 'Start';
+            startButton.classList.remove('active');
+        } else {
+            // Démarrer
+            if (timeLeft === 0) {
+                timeLeft = document.getElementById('timerMinutes').value * 60;
+                totalTime = timeLeft;
+            }
+            timerInterval = setInterval(() => {
+                if (timeLeft > 0) {
+                    timeLeft--;
+                    updateDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    isRunning = false;
+                    startButton.textContent = 'Start';
+                    startButton.classList.remove('active');
+                    new Notification('Minuteur terminé', {
+                        body: 'Le temps est écoulé !',
+                        icon: '/assets/logo.png'
+                    });
+                }
+            }, 1000);
+            startButton.textContent = 'Pause';
+            startButton.classList.add('active');
+        }
+        isRunning = !isRunning;
+    });
+
+    document.getElementById('resetTimer').addEventListener('click', () => {
+        clearInterval(timerInterval);
+        const minutes = document.getElementById('timerMinutes').value;
+        timeLeft = minutes * 60;
+        totalTime = timeLeft;
+        isRunning = false;
+        
+        // Mettre à jour le bouton start
+        const startButton = document.getElementById('startTimer');
+        startButton.textContent = 'Start';
+        startButton.classList.remove('active');
+        
+        // Réinitialiser la barre de progression
+        const progressBar = document.getElementById('timerProgressBar');
+        progressBar.style.width = '100%';
+        progressBar.style.background = '#4CAF50';
+        
+        updateDisplay();
+    });
+
+    document.getElementById('timerMinutes').addEventListener('change', (e) => {
+        if (!isRunning) {
+            timeLeft = e.target.value * 60;
+            totalTime = timeLeft;
+            
+            // Réinitialiser la barre de progression
+            const progressBar = document.getElementById('timerProgressBar');
+            progressBar.style.width = '100%';
+            progressBar.style.background = '#4CAF50';
+            
+            updateDisplay();
+        }
+    });
+}
+
+// Structure pour stocker les liens par défaut
+const defaultSidebarLinks = [
+    {
+        url: 'https://www.google.com',
+        title: 'Google',
+        iconUrl: 'https://img.icons8.com/color/48/000000/google-logo.png'
+    },
+    {
+        url: 'https://search.brave.com',
+        title: 'Brave',
+        iconUrl: 'https://img.icons8.com/color/48/000000/brave-web-browser.png'
+    },
+    {
+        url: 'https://www.bing.com',
+        title: 'Bing',
+        iconUrl: 'https://img.icons8.com/color/48/000000/bing.png'
+    },
+    {
+        url: 'https://chatgpt.com',
+        title: 'ChatGPT',
+        iconUrl: 'https://img.icons8.com/color/48/000000/chatgpt.png'
+    }
+];
+
+// Fonction pour initialiser la gestion des liens de la barre latérale
+function initSidebarLinks() {
+    // Charger les liens sauvegardés ou utiliser les liens par défaut
+    chrome.storage.local.get({ sidebarLinks: defaultSidebarLinks }, (result) => {
+        updateSidebarLinks(result.sidebarLinks);
+    });
+
+    // Ajouter le bouton d'ajout de lien
+    const sidebar = document.querySelector('.sidebar');
+    const addButton = document.createElement('a');
+    addButton.href = '#';
+    addButton.className = 'add-link-button';
+    addButton.innerHTML = `
+        <div style="width: 32px; height: 32px; background: rgba(255,255,255,0.1); 
+                    border-radius: 50%; display: flex; align-items: center; 
+                    justify-content: center; font-size: 24px; color: white;">
+            +
+        </div>
+    `;
+    addButton.title = 'Add new link';
+    addButton.onclick = (e) => {
+        e.preventDefault();
+        showAddLinkDialog();
+    };
+    sidebar.appendChild(addButton);
+}
+
+// Fonction pour mettre à jour l'affichage des liens
+function updateSidebarLinks(links) {
+    const sidebar = document.querySelector('.sidebar');
+    // Supprimer tous les liens existants
+    sidebar.querySelectorAll('a:not(.add-link-button)').forEach(a => a.remove());
+    
+    // Ajouter les nouveaux liens
+    links.forEach(link => {
+        const linkElement = createSidebarLink(link);
+        // Insérer avant le bouton d'ajout
+        sidebar.insertBefore(linkElement, sidebar.querySelector('.add-link-button'));
+    });
+}
+
+// Fonction pour créer un élément de lien
+function createSidebarLink(link) {
+    const a = document.createElement('a');
+    a.href = link.url;
+    a.target = '_blank';
+    a.title = link.title;
+    
+    // Créer le conteneur pour l'icône et le bouton de suppression
+    const container = document.createElement('div');
+    container.style.position = 'relative';
+    
+    // Ajouter l'icône
+    const img = document.createElement('img');
+    img.src = link.iconUrl || `https://www.google.com/s2/favicons?domain=${link.url}&sz=64`;
+    img.alt = link.title;
+    container.appendChild(img);
+    
+    // Ajouter le bouton de suppression
+    const deleteButton = document.createElement('button');
+    deleteButton.innerHTML = '×';
+    deleteButton.className = 'delete-link';
+    deleteButton.style.cssText = `
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255, 59, 48, 0.9);
+        color: white;
+        font-size: 14px;
+        cursor: pointer;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+    `;
+    
+    // Gérer la suppression du lien
+    deleteButton.onclick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        removeSidebarLink(link.url);
+    };
+    
+    container.appendChild(deleteButton);
+    a.appendChild(container);
+    
+    // Afficher/masquer le bouton de suppression au survol
+    a.onmouseenter = () => deleteButton.style.display = 'flex';
+    a.onmouseleave = () => deleteButton.style.display = 'none';
+    
+    return a;
+}
+
+// Fonction pour afficher la boîte de dialogue d'ajout de lien
+function showAddLinkDialog() {
+    const dialog = document.createElement('div');
+    dialog.className = 'add-link-dialog';
+    dialog.innerHTML = `
+        <div class="dialog-content">
+            <div class="dialog-header">
+                <h3>Add New Link</h3>
+                <button class="close-dialog">×</button>
+            </div>
+            <div class="dialog-body">
+                <div class="input-group">
+                    <label for="linkUrl">URL</label>
+                    <input type="text" id="linkUrl" placeholder="https://example.com" autocomplete="off" />
+                </div>
+                <div class="input-group">
+                    <label for="linkTitle">Title</label>
+                    <input type="text" id="linkTitle" placeholder="My Website" autocomplete="off" />
+                </div>
+            </div>
+            <div class="dialog-buttons">
+                <button class="cancel-button">Cancel</button>
+                <button class="add-button">Add</button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(dialog);
+
+    // Focus sur le champ URL
+    setTimeout(() => {
+        dialog.querySelector('#linkUrl').focus();
+    }, 100);
+    
+    // Gérer l'ajout du lien
+    dialog.querySelector('.add-button').onclick = async () => {
+        const url = dialog.querySelector('#linkUrl').value.trim();
+        const title = dialog.querySelector('#linkTitle').value.trim();
+        
+        if (url) {
+            await addSidebarLink(url, title);
+            dialog.remove();
+        } else {
+            dialog.querySelector('#linkUrl').classList.add('error');
+        }
+    };
+    
+    // Gérer la fermeture
+    dialog.querySelector('.close-dialog').onclick = () => dialog.remove();
+    dialog.querySelector('.cancel-button').onclick = () => dialog.remove();
+
+    // Fermer avec Echap
+    dialog.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            dialog.remove();
+        }
+    });
+
+    // Validation en temps réel
+    dialog.querySelector('#linkUrl').addEventListener('input', (e) => {
+        e.target.classList.remove('error');
+    });
+
+    // Empêcher la fermeture lors du clic sur le contenu
+    dialog.querySelector('.dialog-content').addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+
+    // Fermer lors du clic en dehors
+    dialog.addEventListener('click', (e) => {
+        if (e.target === dialog) {
+            dialog.remove();
+        }
+    });
+}
+
+// Remplacer les styles existants par ceux-ci
+const styles = `
+.add-link-dialog {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.dialog-content {
+    background: rgba(30, 34, 38, 0.95);
+    width: 320px;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    animation: dialogAppear 0.3s ease;
+}
+
+@keyframes dialogAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.dialog-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dialog-header h3 {
+    margin: 0;
+    color: white;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+.close-dialog {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.2s ease;
+}
+
+.close-dialog:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.dialog-body {
+    padding: 15px;
+}
+
+.input-group {
+    margin-bottom: 12px;
+}
+
+.input-group label {
+    display: block;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 6px;
+    font-size: 13px;
+}
+
+.input-group input {
+    width: calc(100% - 24px);
+    padding: 8px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 6px;
+    color: white;
+    font-size: 13px;
+    transition: all 0.2s ease;
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    outline: none;
+    border-color: #4285F4;
+    background: rgba(255, 255, 255, 0.1);
+}
+
+.input-group input.error {
+    border-color: #ff4444;
+    animation: shake 0.3s ease;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+}
+
+.dialog-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dialog-buttons button {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 60px;
+}
+
+.add-button {
+    background: #4285F4;
+    color: white;
+}
+
+.add-button:hover {
+    background: #5294ff;
+    transform: translateY(-1px);
+}
+
+.cancel-button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cancel-button:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.dialog-buttons button:active {
+    transform: translateY(1px);
+}
+
+/* Assure que les inputs utilisent border-box */
+* {
+    box-sizing: border-box;
+}
+
+/* Ajuste la taille maximale des inputs */
+.input-group input {
+    max-width: 100%;
+    margin: 0;
+}
+
+/* Style pour le curseur personnalisé */
+body.custom-cursor-enabled .add-link-dialog {
+    cursor: auto !important;
+}
+
+body.custom-cursor-enabled .add-link-dialog .dialog-content {
+    cursor: auto !important;
+}
+
+body.custom-cursor-enabled .add-link-dialog input,
+body.custom-cursor-enabled .add-link-dialog button {
+    cursor: pointer !important;
+}
+`;
+
+// Ajouter les styles au document
+const styleSheet = document.createElement('style');
+styleSheet.textContent = styles;
+document.head.appendChild(styleSheet);
+
+// Ajouter l'initialisation à l'événement DOMContentLoaded
+document.addEventListener('DOMContentLoaded', () => {
+    // ... autres initialisations existantes ...
+    initSidebarLinks();
+});
+
+// Fonction pour ajouter un nouveau lien
+async function addSidebarLink(url, title) {
+    // Ajouter le protocole si nécessaire
+    if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+    }
+    
+    try {
+        // Récupérer les liens existants
+        const { sidebarLinks = defaultSidebarLinks } = await chrome.storage.local.get('sidebarLinks');
+        
+        // Vérifier si le lien existe déjà
+        if (sidebarLinks.some(link => link.url === url)) {
+            showNotification('This link already exists', 'error');
+            return;
+        }
+
+        // Extraire le domaine principal pour l'icône
+        const urlObj = new URL(url);
+        const domain = urlObj.hostname.split('.').slice(-2).join('.');
+        
+        // Définir l'icône en fonction du domaine
+        let iconUrl;
+        if (domain === 'google.com') {
+            // Gérer les services Google
+            const subdomain = urlObj.hostname.split('.')[0];
+            switch (subdomain) {
+                case 'mail':
+                    iconUrl = 'https://img.icons8.com/color/48/000000/gmail.png';
+                    break;
+                case 'drive':
+                    iconUrl = 'https://img.icons8.com/color/48/000000/google-drive.png';
+                    break;
+                case 'docs':
+                    iconUrl = 'https://img.icons8.com/color/48/000000/google-docs.png';
+                    break;
+                case 'calendar':
+                    iconUrl = 'https://img.icons8.com/color/48/000000/google-calendar.png';
+                    break;
+                case 'meet':
+                    iconUrl = 'https://img.icons8.com/color/48/000000/google-meet.png';
+                    break;
+                default:
+                    iconUrl = `https://www.google.com/s2/favicons?domain=${url}&sz=64`;
+            }
+        } else {
+            // Pour les autres domaines
+            iconUrl = `https://www.google.com/s2/favicons?domain=${url}&sz=64`;
+        }
+        
+        // Créer le nouveau lien
+        const newLink = {
+            url,
+            title: title || urlObj.hostname,
+            iconUrl
+        };
+        
+        // Ajouter le nouveau lien
+        const updatedLinks = [...sidebarLinks, newLink];
+        await chrome.storage.local.set({ sidebarLinks: updatedLinks });
+        
+        // Mettre à jour l'affichage
+        updateSidebarLinks(updatedLinks);
+        showNotification('Link added successfully', 'success');
+        
+    } catch (error) {
+        console.error('Error adding link:', error);
+        showNotification('Error adding link', 'error');
+    }
+}
+
+// Fonction pour supprimer un lien
+async function removeSidebarLink(url) {
+    try {
+        const { sidebarLinks = defaultSidebarLinks } = await chrome.storage.local.get('sidebarLinks');
+        const updatedLinks = sidebarLinks.filter(link => link.url !== url);
+        await chrome.storage.local.set({ sidebarLinks: updatedLinks });
+        updateSidebarLinks(updatedLinks);
+        showNotification('Link removed successfully', 'success');
+    } catch (error) {
+        console.error('Error removing link:', error);
+        showNotification('Error removing link', 'error');
+    }
+}
+

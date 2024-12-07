@@ -7,6 +7,7 @@
     <link rel="icon" href="/assets/logo.png" />
     <title>HomeBrowser</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="/lib/chart.min.js"></script>
 </head>
 <body>
     <div class="sidebar">
@@ -48,10 +49,52 @@
                     <img src="https://lanyard.cnrad.dev/api/1006197798577909880" alt="Discord Presence">
                 </a>
             </div>
+            <div class="bitcoin-widget">
+                <div class="crypto-header">
+                    <h3 data-i18n="bitcoin.title">Crypto Price</h3>
+                    <div class="custom-select crypto-select">
+                        <div class="custom-select-trigger">
+                            <div class="selected-icon">₿</div>
+                            <span class="selected-text">BTC</span>
+                        </div>
+                        <div class="custom-select-options">
+                            <div class="custom-select-option selected" data-value="bitcoin">
+                                <div class="custom-select-icon" style="color: #F7931A">₿</div>
+                                <span>BTC</span>
+                            </div>
+                            <div class="custom-select-option" data-value="ethereum">
+                                <div class="custom-select-icon" style="color: #627EEA">Ξ</div>
+                                <span>ETH</span>
+                            </div>
+                            <div class="custom-select-option" data-value="solana">
+                                <div class="custom-select-icon" style="color: #00FFA3">◎</div>
+                                <span>SOL</span>
+                            </div>
+                            <div class="custom-select-option" data-value="ripple">
+                                <div class="custom-select-icon" style="color: #23292F">✕</div>
+                                <span>XRP</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="bitcoin-chart-container">
+                    <canvas id="bitcoinChart"></canvas>
+                </div>
+                <div class="bitcoin-info">
+                    <span id="bitcoinPrice"></span>
+                    <span id="bitcoinChange"></span>
+                </div>
+                <div class="ping-container">
+                    <h3 data-i18n="performance.ping">PING</h3>
+                    <div id="ping-info" class="ping-stat"></div>
+                </div>
+            </div>
         </div>
         <div class="performance-container">
             <h3 data-i18n="performance.title">CPU PERFORMANCE</h3>
             <div id="cpu-info"></div>
+            <h3 data-i18n="performance.fps">FPS</h3>
+            <div id="fps-info" class="fps-stat"></div>
             <h3 data-i18n="performance.systemMemory">SYSTEM MEMORY</h3>
             <div id="memory-info" class="memory-stat"></div>
         </div>

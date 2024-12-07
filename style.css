@@ -1,6 +1,14 @@
 body {
     margin: 0;
-    background: linear-gradient(135deg, #0f1215 0%, #1a1f25 100%);
+    background: linear-gradient(
+        -45deg,
+        #0f1215,
+        #1a1f25,
+        #1e2429,
+        #23272b
+    );
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
     color: #fff;
     display: flex;
     justify-content: center;
@@ -8,6 +16,75 @@ body {
     height: 100vh;
     font-family: 'Segoe UI', system-ui, sans-serif;
     cursor: none;
+    position: relative;
+    overflow: hidden;
+}
+
+@keyframes gradientBG {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    background-size: 50px 50px;
+    animation: particleFloat 20s linear infinite;
+    pointer-events: none;
+}
+
+@keyframes particleFloat {
+    0% {
+        transform: translateY(0);
+    }
+    100% {
+        transform: translateY(-50px);
+    }
+}
+
+body::after {
+    content: '';
+    position: fixed;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(
+        circle at center,
+        rgba(62, 84, 172, 0.1) 0%,
+        rgba(62, 84, 172, 0) 70%
+    );
+    animation: glowPulse 10s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes glowPulse {
+    0% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.1);
+    }
+    100% {
+        opacity: 0.5;
+        transform: scale(1);
+    }
 }
 
 .custom-cursor {
@@ -20,6 +97,7 @@ body {
     z-index: 9999;
     transition: transform 0.1s ease;
     mix-blend-mode: difference;
+    will-change: transform;
 }
 
 .custom-cursor.hover {
@@ -1169,184 +1247,47 @@ body {
 
 /* Variables pour le thème clair */
 body.theme-light {
-    --bg-gradient-1: #f8f9fa;
-    --bg-gradient-2: #e9ecef;
-    --card-bg: rgba(255, 255, 255, 0.95);
-    --card-border: rgba(0, 0, 0, 0.05);
-    --text-color: #495057;
-    --text-secondary: #6c757d;
-    --hover-bg: rgba(108, 117, 125, 0.05);
-    --shadow-color: rgba(0, 0, 0, 0.04);
-    --accent-color: #74b9ff;
-    --accent-hover: #0984e3;
-    --progress-bar-1: #74b9ff;
-    --progress-bar-2: #a8e6cf;
-    --progress-bar-3: #ffd3b6;
+    background: linear-gradient(
+        -45deg,
+        #e8ecf1,
+        #f0f4f8,
+        #f5f7fa,
+        #ffffff
+    );
+    background-size: 400% 400%;
+    animation: gradientBG 15s ease infinite;
 }
 
-/* Fond principal */
-body.theme-light {
-    background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
-    color: var(--text-color);
+body.theme-light::before {
+    background-image: 
+        radial-gradient(circle at 25% 25%, rgba(0, 0, 0, 0.03) 1px, transparent 1px),
+        radial-gradient(circle at 75% 75%, rgba(0, 0, 0, 0.03) 1px, transparent 1px);
 }
 
-/* Container principal */
-body.theme-light .container {
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid var(--card-border);
-    box-shadow: 0 8px 32px var(--shadow-color);
+body.theme-light::after {
+    background: radial-gradient(
+        circle at center,
+        rgba(100, 149, 237, 0.1) 0%,
+        rgba(100, 149, 237, 0) 70%
+    );
 }
 
-/* Widgets */
-body.theme-light .storage-container,
-body.theme-light .performance-container,
-body.theme-light .weather-widget,
-body.theme-light .quick-notes,
-body.theme-light .clock-container {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-/* Barres de progression */
-body.theme-light .cpu-bar {
-    background: linear-gradient(90deg, var(--progress-bar-1), #a8e6cf);
-}
-
-body.theme-light .storage-stat .progress-bar {
-    background: linear-gradient(90deg, var(--progress-bar-2), #dcedc1);
-}
-
-body.theme-light .memory-stat .progress-bar {
-    background: linear-gradient(90deg, var(--progress-bar-3), #ffaaa5);
-}
-
-body.theme-light .cpu-bar-container {
-    background: rgba(108, 117, 125, 0.05);
-    border: 1px solid rgba(108, 117, 125, 0.08);
-}
-
-/* Spotify widget */
-body.theme-light .discord {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-}
-
-/* Champs de recherche */
-body.theme-light .search input {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-color);
-    box-shadow: 0 2px 8px var(--shadow-color);
-}
-
-body.theme-light .search input::placeholder {
-    color: var(--text-secondary);
-}
-
-/* Modales */
-body.theme-light .settings-modal,
-body.theme-light .about-modal {
-    background: rgba(255, 255, 255, 0.6);
-    backdrop-filter: blur(10px);
-}
-
-body.theme-light .settings-content,
-body.theme-light .about-content {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: 0 8px 32px var(--shadow-color);
-}
-
-/* Éléments des paramètres */
-body.theme-light .setting-item {
-    background: rgba(108, 117, 125, 0.03);
-    border: 1px solid rgba(108, 117, 125, 0.05);
-}
-
-/* Toggles */
-body.theme-light .setting-item input[type="checkbox"] {
-    background: rgba(108, 117, 125, 0.1);
-}
-
-body.theme-light .setting-item input[type="checkbox"]:checked {
-    background: var(--accent-color);
-}
-
-/* Custom select */
-body.theme-light .custom-select-trigger,
-body.theme-light .custom-select-options {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    color: var(--text-color);
-}
-
-body.theme-light .custom-select-option:hover {
-    background: var(--hover-bg);
-}
-
-/* Bouton Save */
-body.theme-light #save-notes {
-    background: linear-gradient(145deg, var(--accent-color), var(--accent-hover));
-    color: white;
-    box-shadow: 0 2px 8px rgba(108, 117, 125, 0.15);
-}
-
-/* Textes et titres */
-body.theme-light h3,
-body.theme-light h4,
-body.theme-light .settings-header h2,
-body.theme-light .about-header h2,
-body.theme-light .settings-section h3,
-body.theme-light .setting-item label {
-    color: var(--text-color);
-}
-
-body.theme-light .about-info p,
-body.theme-light .storage-stat,
-body.theme-light .memory-stat {
-    color: var(--text-secondary);
-}
-
-/* Scrollbar */
-body.theme-light ::-webkit-scrollbar-track {
-    background: rgba(108, 117, 125, 0.05);
-}
-
-body.theme-light ::-webkit-scrollbar-thumb {
-    background: rgba(108, 117, 125, 0.15);
-    border-radius: 5px;
-}
-
-body.theme-light ::-webkit-scrollbar-thumb:hover {
-    background: rgba(108, 117, 125, 0.25);
-}
-
-/* Menu contextuel */
-body.theme-light .custom-context-menu {
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    box-shadow: 0 4px 12px var(--shadow-color);
-}
-
-body.theme-light .context-menu-item {
-    color: var(--text-color);
-}
-
-body.theme-light .context-menu-separator {
-    background: var(--card-border);
-}
-
-/* Icônes et éléments interactifs */
-body.theme-light .custom-select-icon,
-body.theme-light .custom-select-trigger .selected-icon {
-    background: rgba(108, 117, 125, 0.05);
-}
-
-/* Transitions douces */
-body.theme-light * {
-    transition: all 0.3s ease;
+/* Optimisation des performances */
+@media (prefers-reduced-motion: reduce) {
+    body {
+        animation: none;
+        background: #0f1215;
+    }
+    
+    body::before,
+    body::after {
+        display: none;
+    }
+    
+    body.theme-light {
+        animation: none;
+        background: #f0f4f8;
+    }
 }
 
 /* Ajoutez ces styles pour gérer l'affichage des formulaires de recherche */
@@ -1429,4 +1370,371 @@ body.custom-cursor-enabled .custom-select-trigger,
 body.custom-cursor-enabled .custom-select-option,
 body.custom-cursor-enabled .context-menu-item {
     cursor: none !important;
+}
+
+.fps-stat {
+    margin: 8px 0;
+    padding: 10px;
+    background-color: rgba(42, 45, 49, 0.8);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.fps-stat:hover {
+    background-color: rgba(42, 45, 49, 0.9);
+    transform: translateX(5px);
+}
+
+.fps-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    background: linear-gradient(90deg, #4CAF50, #8BC34A);
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    position: relative;
+    overflow: hidden;
+    will-change: width;
+}
+
+.fps-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+/* Ajout des styles pour le thème clair */
+body.theme-light .fps-stat {
+    background: rgba(108, 117, 125, 0.05);
+    border: 1px solid rgba(108, 117, 125, 0.08);
+}
+
+body.theme-light .fps-bar {
+    background: linear-gradient(90deg, #66BB6A, #A5D6A7);
+}
+
+/* Désactiver les animations en cas de préférence de réduction de mouvement */
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+.bitcoin-widget {
+    margin-top: 20px;
+    padding: 20px;
+    background: rgba(30, 34, 38, 0.95);
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.bitcoin-widget:hover {
+    transform: translateY(-5px);
+}
+
+.bitcoin-chart-container {
+    height: 120px;
+    margin: 15px 0;
+    position: relative;
+}
+
+.bitcoin-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+#bitcoinPrice {
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+#bitcoinChange {
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+#bitcoinChange.positive {
+    background: rgba(52, 168, 83, 0.15);
+    color: #34a853;
+}
+
+#bitcoinChange.negative {
+    background: rgba(234, 67, 53, 0.15);
+    color: #ea4335;
+}
+
+.error-message {
+    text-align: center;
+    padding: 20px;
+    color: #ea4335;
+}
+
+.error-message button {
+    margin-top: 10px;
+    padding: 8px 16px;
+    background: #ea4335;
+    border: none;
+    border-radius: 4px;
+    color: white;
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.error-message button:hover {
+    opacity: 0.9;
+}
+
+.error-message .error-details {
+    font-size: 12px;
+    opacity: 0.7;
+    margin: 5px 0;
+}
+
+.crypto-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.crypto-select {
+    width: 120px;
+}
+
+.crypto-select .custom-select-trigger {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.crypto-select .custom-select-option {
+    padding: 8px 12px;
+    font-size: 14px;
+}
+
+.crypto-select .custom-select-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.crypto-select .selected-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    color: #F7931A; /* Couleur par défaut pour Bitcoin */
+}
+
+.crypto-header h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    transition: color 0.3s ease;
+}
+
+.crypto-select .custom-select-option:hover .custom-select-icon {
+    transform: scale(1.1);
+    background: rgba(255, 255, 255, 0.1);
+}
+
+/* Ajouter ces styles pour l'indicateur de ping */
+.ping-stat {
+    margin: 8px 0;
+    padding: 10px;
+    background-color: rgba(42, 45, 49, 0.8);
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.ping-stat:hover {
+    background-color: rgba(42, 45, 49, 0.9);
+    transform: translateX(5px);
+}
+
+.ping-bar {
+    height: 8px;
+    border-radius: 4px;
+    margin-top: 8px;
+    box-shadow: 0 0 10px rgba(76, 175, 80, 0.3);
+    position: relative;
+    overflow: hidden;
+    will-change: width;
+}
+
+.ping-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+.ping-container {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ping-container h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Styles améliorés pour le minuteur */
+.timer-container {
+    margin-bottom: 20px;
+    padding: 15px;
+    background: rgba(32, 33, 36, 0.9);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.timer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.timer-header h3 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.8);
+    text-transform: uppercase;
+}
+
+.timer-display {
+    font-size: 24px;
+    font-family: "clockDigital", monospace;
+    color: #fff;
+    text-align: right;
+}
+
+.timer-progress {
+    width: 100%;
+    height: 2px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 1px;
+    margin: 10px 0;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: #4CAF50;
+    transition: width 0.3s ease, background 0.3s ease;
+}
+
+.timer-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.time-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255, 255, 255, 0.1);
+    padding: 4px 8px;
+    border-radius: 6px;
+}
+
+.time-input input {
+    width: 30px;
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    text-align: right;
+    padding: 0;
+}
+
+.time-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+}
+
+.timer-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.timer-btn {
+    padding: 6px 16px;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 13px;
+    font-weight: 500;
+    background: #4285F4;
+}
+
+.timer-btn.secondary {
+    background: #5c6bc0;
+    padding: 6px 12px;
+    min-width: 50px;
+}
+
+.timer-btn:hover {
+    opacity: 0.9;
+}
+
+.timer-btn.active {
+    background: #f44336;
+}
+
+/* Supprimer les icônes des boutons */
+.timer-icon {
+    display: none;
+}
+
+/* Animation pour la barre de progression */
+@keyframes pulse {
+    0% {
+        opacity: 0.6;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.6;
+    }
+}
+
+.progress-bar {
+    animation: none;
 }

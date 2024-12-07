@@ -29,7 +29,7 @@
   "version_name": "1.0.0",
   "minimum_chrome_version": "93",
   "content_security_policy": {
-    "extension_pages": "script-src 'self'; object-src 'self'"
+    "extension_pages": "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; object-src 'self'; connect-src 'self' https://api.coingecko.com https://cdn.jsdelivr.net"
   },
   "incognito": "spanning",
   "homepage_url": "https://github.com/EnderMythex/EnderHomeBrowser",

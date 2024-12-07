@@ -1,7 +1,11 @@
 const translations = {
     en: {
         storage: {
-            title: "Storage"
+            title: "Storage",
+            timer: "TIMER",
+            startTimer: "Start",
+            pauseTimer: "Pause",
+            resetTimer: "Reset"
         },
         search: {
             title: "Search",
@@ -14,7 +18,9 @@ const translations = {
         },
         performance: {
             title: "CPU PERFORMANCE",
-            systemMemory: "SYSTEM MEMORY"
+            systemMemory: "SYSTEM MEMORY",
+            fps: "FPS",
+            ping: "PING"
         },
         weather: {
             title: "Weather",
@@ -74,11 +80,20 @@ const translations = {
         },
         recentSites: {
             title: "Recently Visited Sites"
+        },
+        bitcoin: {
+            title: "Bitcoin Price",
+            price: "Current Price",
+            change24h: "24h Change"
         }
     },
     fr: {
         storage: {
-            title: "Stockage"
+            title: "Stockage",
+            timer: "MINUTEUR",
+            startTimer: "Démarrer",
+            pauseTimer: "Pause",
+            resetTimer: "Réinitialiser"
         },
         search: {
             title: "Recherche",
@@ -91,7 +106,9 @@ const translations = {
         },
         performance: {
             title: "PERFORMANCE CPU",
-            systemMemory: "MÉMOIRE SYSTÈME"
+            systemMemory: "MÉMOIRE SYSTÈME",
+            fps: "FPS",
+            ping: "PING"
         },
         weather: {
             title: "Météo",
@@ -151,6 +168,11 @@ const translations = {
         },
         recentSites: {
             title: "Sites récemment visités"
+        },
+        bitcoin: {
+            title: "Prix du Bitcoin",
+            price: "Prix actuel",
+            change24h: "Variation 24h"
         }
     }
 }; 
